@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kv260-uav-vision"
+version = "0.0.1"
+description = "Embedded vision on a Kria KV260 companion computer for PX4/ArduPilot UAVs"
+# 3.8 = Vitis AI 3.5 host container; 3.10 = Ubuntu 22.04 on the KV260. Code must run on both.
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+include = ["fc_link*", "ingest*", "perception*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not sitl'"
+markers = [
+    "sitl: integration test that needs a running PX4 or ArduPilot SITL (run with -m sitl)",
+]
