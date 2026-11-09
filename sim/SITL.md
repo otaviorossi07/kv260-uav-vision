@@ -57,7 +57,7 @@ If that target fails to build, fall back to Gazebo headless: `HEADLESS=1 make px
 sudo apt install -y python3-venv
 python3 -m venv ~/kv260-venv
 source ~/kv260-venv/bin/activate
-cd /mnt/c/Users/Otavio/Documents/kv260-uav-vision
+cd /mnt/c/Users/<you>/Documents/kv260-uav-vision    # adjust to your repo path
 pip install -e ".[dev]"
 ```
 
@@ -65,7 +65,7 @@ pip install -e ".[dev]"
 
 ```
 source ~/kv260-venv/bin/activate
-cd /mnt/c/Users/Otavio/Documents/kv260-uav-vision
+cd /mnt/c/Users/<you>/Documents/kv260-uav-vision    # adjust to your repo path
 pytest -m sitl -k ardupilot -s     # with ArduPilot SITL up
 pytest -m sitl -k px4 -s           # with PX4 SITL up
 ```

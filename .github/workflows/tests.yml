@@ -1,0 +1,19 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.8 = Vitis AI 3.5 host container, 3.10 = Ubuntu 22.04 on the KV260
+        python: ["3.8", "3.10"]
+    container: python:${{ matrix.python }}-slim
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -e ".[dev]"
+      - run: pytest -q

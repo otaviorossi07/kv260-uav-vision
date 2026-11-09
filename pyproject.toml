@@ -6,6 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "kv260-uav-vision"
 version = "0.0.1"
 description = "Embedded vision on a Kria KV260 companion computer for PX4/ArduPilot UAVs"
+readme = "README.md"
+license = { text = "MIT" }
 # 3.8 = Vitis AI 3.5 host container; 3.10 = Ubuntu 22.04 on the KV260. Code must run on both.
 requires-python = ">=3.8"
 dependencies = ["pymavlink>=2.4.40"]
