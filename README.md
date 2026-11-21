@@ -6,6 +6,11 @@ every feature is closed in the loop against SITL/HITL before it ever flies.
 
 > **Status:** Phase 1 done · Phase 2 (flight-controller link) code and unit tests done, SITL
 > acceptance pending. See [Roadmap](#roadmap).
+>
+> **Scope update (2026-11):** visual-inertial odometry (VIO) is now a main goal. A NUCLEO-H743ZI2
+> running ArduPilot joins the bench as a stand-in flight controller, and testing follows the
+> bench ladder B0-B7 in [docs/bench.md](docs/bench.md): from fake FC and SITL, through recorded
+> datasets and closed-loop VIO in simulation, to a physical camera + IMU rig and the Cube Orange.
 
 ---
 
@@ -157,7 +162,8 @@ pytest -q
 
 ## Roadmap
 
-A phase is done only when its acceptance check passes.
+A phase is done only when its acceptance check passes. Bench stages B0-B7, which cut across these
+phases, are in [docs/bench.md](docs/bench.md).
 
 | # | Phase | Acceptance | Status |
 |---|---|---|---|

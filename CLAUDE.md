@@ -14,6 +14,10 @@ in the SITL/HITL bench before any flight.
   Ethernet; real MIPI or USB3 camera later.
 - **Other bench hardware:** DroneCAN bus (GPS, airspeed, CAN ESCs), USB-CAN adapter for fault
   injection, propulsion test stand.
+- **Bench flight controller:** NUCLEO-H743ZI2 running ArduPilot (simulation on the board, then a
+  real IMU), stand-in for the Cube Orange; it does not replace it for acceptance.
+  NUCLEO-F446RE: no ArduPilot support, only a possible custom DroneCAN node. Bench stages B0-B7
+  are in `docs/bench.md`.
 
 Work one phase at a time; a phase is done only when its acceptance check passes.
 
