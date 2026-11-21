@@ -1,0 +1,14 @@
+# Phase 2 SITL acceptance - 2026-11-21T03:51:14Z
+# host: WSL Ubuntu 22.04.5 LTS, Python 3.10.12
+# pymavlink 2.4.50
+# ArduPilot Copter-4.5.7-3-gb72075518f | PX4 v1.15.4
+## ArduPilot SITL (sim_vehicle.py -v ArduCopter --no-mavproxy)
+
+ardupilot: ATTITUDE ~50 Hz, timesync rtt 5.50 ms
+.
+1 passed, 21 deselected in 41.70s
+## PX4 SITL (make px4_sitl sihsim_quadx)
+
+px4: ATTITUDE ~47 Hz, timesync rtt 0.05 ms
+.
+1 passed, 21 deselected in 76.57s (0:01:16)

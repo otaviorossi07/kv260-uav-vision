@@ -33,7 +33,9 @@ def run_acceptance(connection: str, expected_fw: str) -> None:
     try:
         assert link.connect(timeout_s=60.0) == expected_fw
         link.start()
-        assert wait_for(lambda: link.attitude() is not None, 10.0), "no ATTITUDE"
+        # PX4 streams ATTITUDE only once EKF2 has aligned (~40-50 s after SIH start, measured);
+        # ArduPilot sends it at once from DCM.
+        assert wait_for(lambda: link.attitude() is not None, 90.0), "no ATTITUDE"
         # count ATTITUDE updates over 2 s to check the requested rate is roughly honoured
         seen = set()
         end = time.monotonic() + 2.0

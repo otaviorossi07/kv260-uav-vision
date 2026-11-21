@@ -4,8 +4,8 @@ Embedded vision for UAVs on an **AMD Kria KV260** companion computer, talking MA
 **PX4 or ArduPilot** flight controller (Cube Orange). Development follows a bench-first path:
 every feature is closed in the loop against SITL/HITL before it ever flies.
 
-> **Status:** Phase 1 done · Phase 2 (flight-controller link) code and unit tests done, SITL
-> acceptance pending. See [Roadmap](#roadmap).
+> **Status:** Phase 1 done · Phase 2 (flight-controller link) done: SITL acceptance passes on
+> ArduPilot and PX4 ([results](results/phase2_sitl_acceptance.txt)). See [Roadmap](#roadmap).
 >
 > **Scope update (2026-11):** visual-inertial odometry (VIO) is now a main goal. A NUCLEO-H743ZI2
 > running ArduPilot joins the bench as a stand-in flight controller, and testing follows the
@@ -168,7 +168,7 @@ phases, are in [docs/bench.md](docs/bench.md).
 | # | Phase | Acceptance | Status |
 |---|---|---|---|
 | 1 | Scaffold and environment | `pytest` runs; container starts | ✅ Done |
-| 2 | Flight-controller link | Integration test passes on ArduPilot SITL and PX4 SITL | 🟡 Code + unit tests done; SITL pending |
+| 2 | Flight-controller link | Integration test passes on ArduPilot SITL and PX4 SITL | ✅ Done |
 | 3 | Frame ingest | 640×480 at ≥ 30 fps for 5 min, frame drops logged | ⬜ |
 | 4 | ArUco precision landing (`LANDING_TARGET`) | Unit tests on synthetic images; SITL landing within 0.2 m | ⬜ |
 | 5 | DNN on the DPU (YOLOX-nano / Model Zoo YOLO) | fps and mAP on a held-out set in `results/` | ⬜ |

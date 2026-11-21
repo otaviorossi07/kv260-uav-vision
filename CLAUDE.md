@@ -88,7 +88,9 @@ flight.
 - Phase 1: DONE (2026-11-08). `pytest` passes locally (Python 3.14 venv) and in the container
   (`xilinx/vitis-ai-pytorch-cpu:ubuntu2004-3.5.0.306`, Python 3.8.6, env `vitis-ai-pytorch`).
   Run the container from cmd with `docker run --rm -it -v "%cd%:/workspace" kv260-uav-vision-host`.
-- Phase 2: code + unit tests done (`fc_link/link.py`, pymavlink; fake FC in `tests/fake_fc.py`).
-  Unit tests pass on 3.14 (Windows) and 3.8 (container). Open: SITL acceptance
-  (`pytest -m sitl`, both firmwares) — setup in `sim/SITL.md`, run in WSL Ubuntu-22.04.
+- Phase 2: DONE (2026-11-21). `fc_link/link.py` (pymavlink), fake FC in `tests/fake_fc.py`.
+  Unit tests pass on 3.14 (Windows), 3.10 (WSL) and 3.8 (container). SITL acceptance passes on
+  ArduPilot Copter-4.5 (ATTITUDE ~50 Hz) and PX4 v1.15.4 SIH (~47 Hz), evidence in
+  `results/phase2_sitl_acceptance.txt`. WSL has only Ubuntu-22.04 (26.04 removed); SITLs in
+  `~/ardupilot`, `~/PX4-Autopilot`, test venv `~/kv260-venv`. Bench stage B1 done.
   Note: the image does not include pymavlink yet; rebuild it (`docker build`) to pick it up.
