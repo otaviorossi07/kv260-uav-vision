@@ -1,0 +1,66 @@
+{
+  "stage": "B2",
+  "sequence": "V1_01_easy",
+  "camera": "cam0",
+  "frames": 2912,
+  "duration_s": 145.55,
+  "keyframes": 1217,
+  "chain_breaks": 5,
+  "rotation_error_deg": {
+    "median": 0.07115485516237702,
+    "p95": 0.39928592864392687,
+    "max": 5.116496201191432
+  },
+  "direction_error_deg": {
+    "median": 5.564979703348878,
+    "p95": 29.861722958985126,
+    "n": 975
+  },
+  "vo_vs_gyro_rotation_deg": {
+    "median": 0.46022974025776936,
+    "p95": 1.1908626066010182,
+    "n": 1216
+  },
+  "vo_vs_gyro_bias_corrected_deg": {
+    "median": 0.04612707362304003,
+    "p95": 0.392761587941965
+  },
+  "scale_oracle_trajectory": {
+    "path_length_m": 58.032,
+    "ate_rmse_m": 0.31278669573002926,
+    "end_drift_pct_of_path": 0.6696458910935423
+  },
+  "tracking": {
+    "tracked_median": 283.0,
+    "inliers_median": 250.0,
+    "parallax_px_median": 15.107256992882398
+  },
+  "timing_ms_per_frame": {
+    "median": 1.7497500000018817,
+    "p95": 8.757955000001514,
+    "max": 13.418000000001484
+  },
+  "fps": 234.2,
+  "realtime_factor": 11.7,
+  "config": {
+    "min_parallax_px": 12.0,
+    "min_inliers": 30,
+    "ransac_px": 1.0,
+    "ransac_method": "USAC_DEFAULT",
+    "max_features": 300,
+    "lk_window_px": 21,
+    "lk_levels": 3,
+    "fb_max_err_px": 1.0
+  },
+  "environment": {
+    "platform": "x86_64-cv45-px12",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "python": "3.10.12",
+    "opencv": "4.5.5",
+    "numpy": "1.26.4",
+    "cv_threads": 8,
+    "cpu_count": 28,
+    "date_utc": "2026-11-21T04:23:40Z"
+  }
+}

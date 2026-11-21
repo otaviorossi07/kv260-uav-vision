@@ -15,5 +15,5 @@ jobs:
     container: python:${{ matrix.python }}-slim
     steps:
       - uses: actions/checkout@v4
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev,vision]"
       - run: pytest -q

@@ -1,0 +1,88 @@
+{
+  "stage": "B2",
+  "sequence": "V1_02_medium",
+  "camera": "cam0",
+  "frames": 1710,
+  "duration_s": 85.45,
+  "keyframes": 1212,
+  "chain_breaks": 13,
+  "rotation_error_deg": {
+    "median": 0.06396996021418716,
+    "p95": 0.5591415442701021,
+    "max": 4.060602949587288
+  },
+  "direction_error_deg": {
+    "median": 2.893988673102714,
+    "p95": 33.81298968299805,
+    "n": 1161
+  },
+  "direction_error_by_step_length": {
+    "0.02-0.05m": {
+      "n": 468,
+      "median": 3.978840371502045,
+      "p95": 67.93887517785221
+    },
+    "0.05-0.10m": {
+      "n": 581,
+      "median": 2.526760149169035,
+      "p95": 16.169331410335452
+    },
+    "0.10-0.20m": {
+      "n": 103,
+      "median": 2.698147778527709,
+      "p95": 10.32960813683173
+    },
+    ">0.20m": {
+      "n": 9,
+      "median": 1.8730567961541276,
+      "p95": 3.1759036288534443
+    }
+  },
+  "vo_vs_gyro_rotation_deg": {
+    "median": 0.2496048222999377,
+    "p95": 0.8039415325924488,
+    "n": 1211
+  },
+  "vo_vs_gyro_bias_corrected_deg": {
+    "median": 0.061624995766965965,
+    "p95": 0.5544835281654671
+  },
+  "scale_oracle_trajectory": {
+    "path_length_m": 74.771,
+    "ate_rmse_m": 0.278766481996618,
+    "end_drift_pct_of_path": 0.4855037028982485
+  },
+  "tracking": {
+    "tracked_median": 258.0,
+    "inliers_median": 216.0,
+    "parallax_px_median": 20.773100069166865
+  },
+  "timing_ms_per_frame": {
+    "median": 8.333181000011791,
+    "p95": 9.453522450007767,
+    "max": 17.354838999949607
+  },
+  "fps": 150.4,
+  "realtime_factor": 7.51,
+  "config": {
+    "min_parallax_px": 12.0,
+    "min_inliers": 30,
+    "ransac_px": 1.0,
+    "ransac_method": "USAC_DEFAULT",
+    "max_features": 300,
+    "lk_window_px": 21,
+    "lk_levels": 3,
+    "fb_max_err_px": 1.0
+  },
+  "environment": {
+    "platform": "x86_64-cv45",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "python": "3.10.12",
+    "opencv": "4.5.5",
+    "numpy": "1.26.4",
+    "cv_threads": 8,
+    "cpu_count": 28,
+    "date_utc": "2026-11-21T04:30:00Z"
+  }
+}

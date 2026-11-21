@@ -94,3 +94,11 @@ flight.
   `results/phase2_sitl_acceptance.txt`. WSL has only Ubuntu-22.04 (26.04 removed); SITLs in
   `~/ardupilot`, `~/PX4-Autopilot`, test venv `~/kv260-venv`. Bench stage B1 done.
   Note: the image does not include pymavlink yet; rebuild it (`docker build`) to pick it up.
+- Bench B2 (VO on EuRoC): PC part done (2026-11-21). `ingest/euroc.py`, `perception/vo/`,
+  `tools/bench/vo_euroc.py`; results + findings in `results/b2_vo_euroc/SUMMARY.md`.
+  Dataset in `data/euroc/` (gitignored; V1_01/02/03). Unit tests (31) pass on 3.14 / OpenCV 5.1,
+  3.10 / OpenCV 4.5.5 (`~/venv-cv45`) and 3.8 (`~/venv-py38`). Open: KV260 A53 timing
+  (`--tag kv260`), cause of the V1_01 direction bias.
+- Bench B4: firmware built (2026-11-21), `sim/nucleo/` (board `NucleoH743-SimVIO`, ArduPilot
+  Copter-4.5 + on-board sim + external nav). Hex in `data/nucleo/`. Open: flash the ZI2, check
+  USB/clock on CN13, then fc_link over UART7 and the truth-echo test.
