@@ -40,7 +40,14 @@ git clone --recursive https://github.com/PX4/PX4-Autopilot.git ~/PX4-Autopilot
 cd ~/PX4-Autopilot
 git checkout v1.15.4
 git submodule update --init --recursive
-bash ./Tools/setup/ubuntu.sh --no-nuttx
+bash ./Tools/setup/ubuntu.sh --no-nuttx --no-sim-tools
+```
+If it stops at "Installing PX4 Python3 dependencies" with `Invalid requirement: 'matplotlib>=3.0.*'`
+(newer pip, pulled in by the ArduPilot prereqs, rejects that syntax), install from a fixed copy;
+nothing after that step is needed for SIH:
+```
+sed 's/>=\([0-9.]*\)\.\*/>=\1/' Tools/setup/requirements.txt > /tmp/px4-req.txt
+python3 -m pip install --user -r /tmp/px4-req.txt
 ```
 Close the shell and open it again (`exit`, then `wsl -d Ubuntu-22.04`).
 
@@ -69,8 +76,10 @@ cd /mnt/c/Users/<you>/Documents/kv260-uav-vision    # adjust to your repo path
 pytest -m sitl -k ardupilot -s     # with ArduPilot SITL up
 pytest -m sitl -k px4 -s           # with PX4 SITL up
 ```
-Each test waits up to 60 s for the heartbeat and up to 120 s for `LOCAL_POSITION_NED`
-(the EKF needs a GPS origin first). Run one SITL at a time.
+Each test waits up to 60 s for the heartbeat, up to 90 s for the first `ATTITUDE` and up to
+120 s for `LOCAL_POSITION_NED` (the EKF needs a GPS origin first). Run one SITL at a time.
+PX4 sends `ATTITUDE` only after EKF2 aligns, measured at ~40-50 s after SIH starts; ArduPilot
+sends it at once. The PX4 test therefore takes ~75 s.
 
 Quick manual check instead of pytest:
 ```
