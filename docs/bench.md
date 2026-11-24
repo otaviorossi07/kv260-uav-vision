@@ -61,12 +61,16 @@ Check: EKF accepts vision for a scripted trajectory; position error vs Simulink 
 p95, final drift) and the measured delay (Phase 6) behind `VISO_DELAY_MS`, in `results/`.
 Arming in SITL only; any code that arms must refuse real hardware without `--allow-flight`.
 
-## B4 - Nucleo, simulation on the board, real UART - firmware built 2026-11-21, flashing open
+## B4 - Nucleo, simulation on the board, real UART - USB link passes 2026-11-23, UART7 + truth echo open
 Board definition, build script and flashing notes: `sim/nucleo/`.
+Step 1 done (2026-11-23): flashed on the ZI2, Phase 2 acceptance passes over USB CN13 (3/3,
+ATTITUDE 32-40 Hz, TIMESYNC rtt ~7 ms), `results/b4_nucleo/step1_usb_acceptance.txt`.
+Needed: simulated GPS (`GPS_TYPE 100`) with a placeholder GPS port, and compiled-in defaults
+because the board stores no parameters (details in `sim/nucleo/README.md`).
 ArduPilot `NucleoH743` target (simulation runs on the H7, no sensors needed). Its default build
 turns off external navigation (`EK3_FEATURE_EXTERNAL_NAV 0`, `HAL_VISUALODOM_ENABLED 0` in
 `hwdef/include/SimOnHW.inc`); our build turns both back on.
-Link: KV260 UART to a Nucleo UART at 921600, or the ST-LINK USB serial (USART3) from the PC.
+Link: KV260 UART to Nucleo UART7 (SERIAL3) at 921600; USB CN13 (SERIAL0) from the PC.
 Vision input is a **truth echo**: the KV260 reads the simulated pose (`SIMSTATE`), adds known
 noise and delay, and sends it back as vision. That tests transport, `TIMESYNC` over real serial,
 and EKF delay handling on a real MCU, with the error known exactly.

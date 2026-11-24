@@ -1,0 +1,10 @@
+# B4 step 1: Phase 2 acceptance (tests/test_sitl.py) against NUCLEO-H743ZI2, ArduPilot on-board sim
+# date: 2026-11-23T17:59:08-03:00  firmware: NucleoH743-SimVIO, Copter-4.5.7-3-gb72075518f, hex sha256 4f206e17...4f02
+# link: USB CN13 (COM6), SERIAL0. No runtime parameters; compiled-in defaults.parm (GPS_TYPE 100, SERIAL1 GPS placeholder, SERIAL3 MAVLink 921600, VISO_TYPE 1)
+# python 3.14.4 pymavlink 2.4.50 pyserial 3.5 Windows
+ardupilot: ATTITUDE ~32 Hz, timesync rtt 6.49 ms
+1 passed, 32 deselected in 22.50s
+ardupilot: ATTITUDE ~40 Hz, timesync rtt 7.58 ms
+1 passed, 32 deselected in 3.21s
+ardupilot: ATTITUDE ~40 Hz, timesync rtt 6.98 ms
+1 passed, 32 deselected in 2.70s

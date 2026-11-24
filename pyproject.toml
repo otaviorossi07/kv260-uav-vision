@@ -10,7 +10,8 @@ readme = "README.md"
 license = { text = "MIT" }
 # 3.8 = Vitis AI 3.5 host container; 3.10 = Ubuntu 22.04 on the KV260. Code must run on both.
 requires-python = ">=3.8"
-dependencies = ["pymavlink>=2.4.40"]
+# pyserial: pymavlink does not pull it in, but serial links (UART, USB) need it
+dependencies = ["pymavlink>=2.4.40", "pyserial>=3.4"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]

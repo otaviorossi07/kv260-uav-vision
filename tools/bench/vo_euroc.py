@@ -86,11 +86,14 @@ def run(seq_dir: Path, out_dir: Path, max_frames: int, threads: int, tag: str,
     gt = gt_camera_poses(seq, t_frames, cam.T_BC)
 
     steps, frame_ms = [], []
+    stage_ms: dict = {}  # stage -> list of ms per frame in which the stage ran
     for t_ns, path in frames:
         img = load_gray(path)
         t0 = time.perf_counter()
         step = vo.process(t_ns, img)
         frame_ms.append((time.perf_counter() - t0) * 1e3)
+        for name, ms in vo.last_stage_ms.items():
+            stage_ms.setdefault(name, []).append(ms)
         if step is not None:
             steps.append(step)
 
@@ -175,6 +178,18 @@ def run(seq_dir: Path, out_dir: Path, max_frames: int, threads: int, tag: str,
             "parallax_px_median": pct([s.parallax_px for s in steps], 50),
         },
         "timing_ms_per_frame": {"median": pct(frame_ms, 50), "p95": pct(frame_ms, 95), "max": float(frame_ms.max())},
+        # where the time goes, to decide what is worth moving to the FPGA. share_pct is of the
+        # total VO time; the remainder is bookkeeping in process() itself
+        "timing_by_stage": {
+            name: {
+                "runs": len(v),
+                "median_ms": pct(v, 50),
+                "p95_ms": pct(v, 95),
+                "total_s": round(float(np.sum(v)) / 1e3, 3),
+                "share_pct": round(100.0 * float(np.sum(v)) / 1e3 / total_s, 1) if total_s else None,
+            }
+            for name, v in sorted(stage_ms.items())
+        },
         "fps": round(len(frames) / total_s, 1) if total_s else None,
         "realtime_factor": round(duration_s / total_s, 2) if total_s else None,
         "config": {

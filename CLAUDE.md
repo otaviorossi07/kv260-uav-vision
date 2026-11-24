@@ -37,6 +37,10 @@ Work one phase at a time; a phase is done only when its acceptance check passes.
   without an explicit `--allow-flight` flag. Default tests target SITL only. Bench tests with
   the propulsion stand run props-off unless the user says otherwise.
 - **No secrets or board IPs in the repo**; read them from `.env` (template: `.env.example`).
+- **Document every error.** Every error found (code, tools, environment, hardware) goes in
+  `docs/errors.md` with symptom, cause, fix and status, when it is found and when it is fixed.
+- **Time every stage.** Each bench tool reports per-stage timing on the PC and the KV260, so the
+  Python-vs-FPGA decision rests on measurements.
 
 ## Repo layout
 
@@ -77,6 +81,14 @@ kv260-uav-vision/
 7. **Visual odometry (later).** Start with sparse optical flow on the A53; move pyramidal LK to
    the PL with Vitis Vision only if phase 6 shows the CPU is the bottleneck. Send `ODOMETRY`.
 
+## Planned later (decided 2026-11-23)
+
+- **FPGA plan.** After the Python stage runs on the KV260 (B2 timing, Phases 3-6), write a plan
+  for moving the slow stages to the PL (Vitis Vision / HLS), based on the measured per-stage times.
+  Touching the bitstream still needs asking first.
+- **EKF analysis.** Study the EKF code (ArduPilot EKF3, PX4 EKF2), especially external-vision
+  fusion and delay handling, and propose improvements, using bench data from B4/B5.
+
 ## When unsure
 
 Stop and ask before: changing the pinned stack, touching the bitstream/platform, adding a
@@ -99,6 +111,7 @@ flight.
   Dataset in `data/euroc/` (gitignored; V1_01/02/03). Unit tests (31) pass on 3.14 / OpenCV 5.1,
   3.10 / OpenCV 4.5.5 (`~/venv-cv45`) and 3.8 (`~/venv-py38`). Open: KV260 A53 timing
   (`--tag kv260`), cause of the V1_01 direction bias.
-- Bench B4: firmware built (2026-11-21), `sim/nucleo/` (board `NucleoH743-SimVIO`, ArduPilot
-  Copter-4.5 + on-board sim + external nav). Hex in `data/nucleo/`. Open: flash the ZI2, check
-  USB/clock on CN13, then fc_link over UART7 and the truth-echo test.
+- Bench B4: step 1 done (2026-11-23). ZI2 flashed (`sim/nucleo/`, board `NucleoH743-SimVIO`,
+  ArduPilot Copter-4.5 + on-board sim + external nav, defaults compiled in); Phase 2 acceptance
+  passes over USB CN13, `results/b4_nucleo/`. Hex in `data/nucleo/`. Open: fc_link over UART7
+  (KV260), truth-echo test.

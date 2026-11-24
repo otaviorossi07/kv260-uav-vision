@@ -10,6 +10,7 @@ keyframe and the current frame. If that succeeds, the current frame becomes the 
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Tuple
 
@@ -171,6 +172,15 @@ class MonoVO:
         self._kf_t: Optional[int] = None
         self._kf_pts: Dict[int, np.ndarray] = {}  # id -> pixel position in the keyframe
         self._kf_count = 0
+        # per-stage wall time of the last process() call, ms (stages that did not run are absent);
+        # used by tools/bench to decide which stages are worth moving to the FPGA
+        self.last_stage_ms: Dict[str, float] = {}
+
+    def _timed(self, stage: str, fn, *args):
+        t0 = time.perf_counter()
+        out = fn(*args)
+        self.last_stage_ms[stage] = self.last_stage_ms.get(stage, 0.0) + (time.perf_counter() - t0) * 1e3
+        return out
 
     def _undistort(self, pts: np.ndarray) -> np.ndarray:
         if len(pts) == 0:
@@ -178,14 +188,15 @@ class MonoVO:
         return cv2.undistortPoints(pts.reshape(-1, 1, 2).astype(np.float64), self.K, self.dist).reshape(-1, 2)
 
     def _set_keyframe(self, t_ns: int, img: np.ndarray) -> None:
-        self.tracker.replenish(img)
+        self._timed("replenish", self.tracker.replenish, img)
         self._kf_t = t_ns
         self._kf_pts = {int(i): p.copy() for i, p in zip(self.tracker.ids, self.tracker.pts)}
         self._kf_count = len(self._kf_pts)
 
     def process(self, t_ns: int, img: np.ndarray) -> Optional[KeyframeStep]:
         """Feed one grayscale frame. Returns a KeyframeStep when a new keyframe is accepted."""
-        ids, pts = self.tracker.track(img)
+        self.last_stage_ms = {}
+        ids, pts = self._timed("track", self.tracker.track, img)
         if self._kf_t is None:
             self._set_keyframe(t_ns, img)
             return None
@@ -195,13 +206,14 @@ class MonoVO:
             return None
         cur = pts[common]
         ref = np.array([self._kf_pts[int(ids[k])] for k in common], dtype=np.float32)
-        p_ref, p_cur = self._undistort(ref), self._undistort(cur)
+        p_ref = self._timed("undistort", self._undistort, ref)
+        p_cur = self._timed("undistort", self._undistort, cur)
         parallax = float(np.median(np.linalg.norm(p_cur - p_ref, axis=1)) * self.focal)
         few_tracks = len(common) < self.cfg.min_track_ratio * max(self._kf_count, 1)
         if parallax < self.cfg.min_parallax_px and not few_tracks:
             return None
-        est = estimate_relative_pose(p_ref, p_cur, self.cfg.ransac_px / self.focal,
-                                     self.cfg.ransac_prob, self.cfg.ransac_method, self.cfg.refine)
+        est = self._timed("pose", estimate_relative_pose, p_ref, p_cur, self.cfg.ransac_px / self.focal,
+                          self.cfg.ransac_prob, self.cfg.ransac_method, self.cfg.refine)
         if est is None or int(est[2].sum()) < self.cfg.min_inliers:
             if few_tracks:
                 self._set_keyframe(t_ns, img)
