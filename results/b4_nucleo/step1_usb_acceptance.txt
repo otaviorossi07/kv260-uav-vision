@@ -8,3 +8,12 @@ ardupilot: ATTITUDE ~40 Hz, timesync rtt 7.58 ms
 1 passed, 32 deselected in 3.21s
 ardupilot: ATTITUDE ~40 Hz, timesync rtt 6.98 ms
 1 passed, 32 deselected in 2.70s
+
+# Rerun after the E15 fix (fc_link polls 2 ms on Windows serial; test counts messages in the link)
+# date: 2026-11-23T22:22:35-03:00  firmware: hex sha256 4bce5051...bc5c (adds EK3_SRC2_* = external nav, E23)
+ardupilot: ATTITUDE 50.5 Hz, timesync rtt 3.48 ms
+1 passed, 36 deselected in 3.31s
+ardupilot: ATTITUDE 50.5 Hz, timesync rtt 3.74 ms
+1 passed, 36 deselected in 2.58s
+ardupilot: ATTITUDE 50.5 Hz, timesync rtt 4.09 ms
+1 passed, 36 deselected in 2.67s

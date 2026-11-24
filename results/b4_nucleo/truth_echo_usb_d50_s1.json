@@ -1,0 +1,99 @@
+{
+  "tool": "tools/bench/truth_echo.py",
+  "tag": "usb_d50_s1",
+  "date": "2026-11-23T22:18:46",
+  "connection": "COM6",
+  "config": {
+    "rate_hz": 30.0,
+    "injected_delay_ms": 50.0,
+    "VISO_DELAY_MS": 50.0,
+    "noise_m": 0.02,
+    "noise_vel_mps": 0.02,
+    "noise_yaw_deg": 0.5,
+    "step_m": 0.3,
+    "seed": 1,
+    "phases_s": {
+      "switch": 8.0,
+      "steady": 28.0,
+      "step_on": 48.0,
+      "step_off": 63.0,
+      "end": 78.0
+    },
+    "original_params": {
+      "EK3_SRC1_POSXY": 3.0,
+      "EK3_SRC1_VELXY": 3.0,
+      "EK3_SRC1_YAW": 1.0,
+      "VISO_DELAY_MS": 10.0
+    },
+    "params_restored": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "echo": {
+    "sent": 2390,
+    "rate_hz": 30.641025641025642,
+    "added_latency_ms_median": 1.3077999994493439,
+    "added_latency_ms_p95": 2.304739999726735
+  },
+  "ekf_uses_ext_nav_text": [],
+  "baseline_gps": {
+    "h_err_m_median": 0.005121990772377964,
+    "h_err_m_p95": 0.0074613619292087695
+  },
+  "steady_ext_nav": {
+    "samples": 612,
+    "h_err_m_median": 0.00780148156900782,
+    "h_err_m_p95": 0.014660901697169227,
+    "h_err_m_max": 0.01605480517348059,
+    "z_err_m_median": 0.04416923418636998,
+    "pos_test_ratio_median": 0.006568053970113397,
+    "pos_test_ratio_max": 0.02125634253025055
+  },
+  "step_on": {
+    "onset_10pct_ms": 375.1224000006914,
+    "t63_ms": 1520.613400000002,
+    "t90_ms": 2928.975000000719,
+    "reached_m": 0.29867191426455975
+  },
+  "step_off": {
+    "onset_10pct_ms": 407.930800000031,
+    "t63_ms": 1616.22140000145,
+    "t90_ms": 3089.7276000014244
+  },
+  "timing_by_stage": {
+    "handle_rx": {
+      "runs": 7810,
+      "median_ms": 0.0034000004234258085,
+      "p95_ms": 0.1791550007510522
+    },
+    "send": {
+      "runs": 2390,
+      "median_ms": 0.43539999933273066,
+      "p95_ms": 0.5858549990989553
+    }
+  },
+  "fc_text": [
+    [
+      8.011923100000786,
+      "EKF3 IMU1 yaw aligned"
+    ],
+    [
+      8.021490400000403,
+      "EKF3 IMU0 yaw aligned"
+    ],
+    [
+      17.235030600000755,
+      "PreArm: Motors: Check frame class and type"
+    ],
+    [
+      47.955735300000015,
+      "PreArm: Motors: Check frame class and type"
+    ],
+    [
+      77.69401370000014,
+      "PreArm: Motors: Check frame class and type"
+    ]
+  ]
+}

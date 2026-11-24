@@ -111,7 +111,9 @@ flight.
   Dataset in `data/euroc/` (gitignored; V1_01/02/03). Unit tests (31) pass on 3.14 / OpenCV 5.1,
   3.10 / OpenCV 4.5.5 (`~/venv-cv45`) and 3.8 (`~/venv-py38`). Open: KV260 A53 timing
   (`--tag kv260`), cause of the V1_01 direction bias.
-- Bench B4: step 1 done (2026-11-23). ZI2 flashed (`sim/nucleo/`, board `NucleoH743-SimVIO`,
-  ArduPilot Copter-4.5 + on-board sim + external nav, defaults compiled in); Phase 2 acceptance
-  passes over USB CN13, `results/b4_nucleo/`. Hex in `data/nucleo/`. Open: fc_link over UART7
-  (KV260), truth-echo test.
+- Bench B4: steps 1-2 done over USB (2026-11-23). ZI2 flashed (`sim/nucleo/`, board
+  `NucleoH743-SimVIO`, ArduPilot Copter-4.5 + on-board sim + external nav, defaults compiled in,
+  incl. `EK3_SRC2_*` = vision); Phase 2 acceptance passes over USB CN13 (50.5 Hz); stationary
+  truth echo (`tools/bench/truth_echo.py`) fused by EKF3, `results/b4_nucleo/SUMMARY.md`.
+  Hex in `data/nucleo/`. Open: both over UART7 from the KV260; delay check needs motion = arming
+  the simulated vehicle (ask first).

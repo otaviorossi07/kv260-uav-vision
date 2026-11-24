@@ -65,7 +65,14 @@ Nothing here touches the bitstream or the DPU yet (Phase 5).
    `/proc/cmdline` shows which `ttyPS` is the console (error E22 in `docs/errors.md`).
 10. **Nucleo link.** USB-UART adapter in a KV260 USB port: adapter TX -> PF6, adapter RX -> PE8,
     GND -> GND. Then `python -m fc_link --connection /dev/ttyUSB0,921600` and
-    `SITL_ARDUPILOT=/dev/ttyUSB0,921600 pytest -m sitl -k ardupilot -s`.
+    `SITL_ARDUPILOT=/dev/ttyUSB0,921600 pytest -m sitl -k ardupilot -s`, then the bench tools
+    (results compare with the USB runs in `results/b4_nucleo/SUMMARY.md`):
+    ```
+    python tools/bench/fc_rx_timing.py /dev/ttyUSB0,921600 --tag nucleo_uart7_kv260
+    python tools/bench/truth_echo.py /dev/ttyUSB0,921600 --tag uart7_d50_s1
+    ```
+    The truth echo changes EKF source parameters on the Nucleo (restored at the end); it never
+    arms, and refuses to run on an FC without the simulation.
 
 ## Later (Phase 5, not now)
 Vitis AI 3.5 runtime (VART), the DPU overlay and `xlnx-config`: check which packages match

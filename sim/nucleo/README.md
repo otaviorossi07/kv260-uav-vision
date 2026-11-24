@@ -8,8 +8,11 @@ visual odometry re-enabled, so EKF3 fuses vision messages from the KV260. See `d
 ```
 bash sim/nucleo/build_nucleo_sim.sh ~/ardupilot 8
 ```
+Run it in a login shell from Windows (`wsl -d Ubuntu-22.04 bash -lc "..."`): the ARM toolchain
+is only on the login PATH (docs/errors.md E24).
 Output: `~/ardupilot/build/NucleoH743-SimVIO/bin/arducopter_with_bl.hex` (bootloader + firmware).
-Built 2026-11-23 from Copter-4.5.7-3-gb72075518f: 1.26 MB of 2 MB flash; symbol check shows
+Built 2026-11-23 from Copter-4.5.7-3-gb72075518f (hex sha256 4bce5051...bc5c, with the
+`EK3_SRC2_*` defaults): 1.26 MB of 2 MB flash; symbol check shows
 `AP_VisualOdom`, `NavEKF3_core::writeExtNavData`, the on-board simulator (`SITL::`) and the
 simulated GPS (`AP_GPS_SITL`). A copy for flashing from Windows is in `data/nucleo/` (not committed).
 
@@ -46,12 +49,15 @@ at boot):
   Without it the GPS has no fix, the EKF has no origin and `LOCAL_POSITION_NED` never appears.
 - `SERIAL3_PROTOCOL 2`, `SERIAL3_BAUD 921`: KV260 link.
 - `VISO_TYPE 1`: MAVLink visual odometry.
+- `EK3_SRC2_POSXY/VELXY/YAW 6`, `EK3_SRC2_POSZ 1`: source set 2 = external nav. EKF3 creates its
+  external-nav buffers at boot only if a source set uses external nav; without this, switching to
+  vision at runtime fuses nothing (docs/errors.md E23). Set 1 stays GPS.
 
-Runtime settings (take effect without reboot) are set by the bench script over MAVLink:
-`EK3_SRC1_POSXY 6`, `EK3_SRC1_VELXY 6`, `EK3_SRC1_YAW 6` (vision), `VISO_DELAY_MS`.
-Setting parameters does not arm or change mode.
+Runtime settings (take effect without reboot) are set by `tools/bench/truth_echo.py` over MAVLink
+and restored at the end: `EK3_SRC1_POSXY 6`, `EK3_SRC1_VELXY 6`, `EK3_SRC1_YAW 6` (vision),
+`VISO_DELAY_MS`. Setting parameters does not arm or change mode.
 
 ## Results
 
-`results/b4_nucleo/step1_usb_acceptance.txt`: Phase 2 acceptance over USB passes (3/3), ATTITUDE
-32-40 Hz, TIMESYNC rtt ~7 ms.
+`results/b4_nucleo/SUMMARY.md`: Phase 2 acceptance over USB passes (3/3, ATTITUDE 50.5 Hz,
+TIMESYNC rtt 3.5-4 ms); stationary truth echo: EKF3 fuses vision, 7 mm median error.

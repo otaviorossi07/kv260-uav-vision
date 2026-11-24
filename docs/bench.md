@@ -61,17 +61,23 @@ Check: EKF accepts vision for a scripted trajectory; position error vs Simulink 
 p95, final drift) and the measured delay (Phase 6) behind `VISO_DELAY_MS`, in `results/`.
 Arming in SITL only; any code that arms must refuse real hardware without `--allow-flight`.
 
-## B4 - Nucleo, simulation on the board, real UART - USB link passes 2026-11-23, UART7 + truth echo open
-Board definition, build script and flashing notes: `sim/nucleo/`.
+## B4 - Nucleo, simulation on the board, real UART - USB link + stationary truth echo pass 2026-11-23; UART7 and delay check open
+Board definition, build script and flashing notes: `sim/nucleo/`. Results: `results/b4_nucleo/SUMMARY.md`.
 Step 1 done (2026-11-23): flashed on the ZI2, Phase 2 acceptance passes over USB CN13 (3/3,
-ATTITUDE 32-40 Hz, TIMESYNC rtt ~7 ms), `results/b4_nucleo/step1_usb_acceptance.txt`.
+ATTITUDE 50.5 Hz, TIMESYNC rtt 3.5-4 ms after fixing E15),
+`results/b4_nucleo/step1_usb_acceptance.txt`.
+Step 2, stationary truth echo over USB, done (2026-11-23): `tools/bench/truth_echo.py`; EKF3 fuses
+the echo (7 mm median error with 20 mm noise), step response t63 ~1.5 s. Needed a vision
+source set at boot (E23).
+Open: the same over UART7 from the KV260; the delay check, which needs the simulated vehicle to
+move, i.e. arming it (asks first: `--allow-flight` path, even though the Nucleo drives no motors).
 Needed: simulated GPS (`GPS_TYPE 100`) with a placeholder GPS port, and compiled-in defaults
 because the board stores no parameters (details in `sim/nucleo/README.md`).
 ArduPilot `NucleoH743` target (simulation runs on the H7, no sensors needed). Its default build
 turns off external navigation (`EK3_FEATURE_EXTERNAL_NAV 0`, `HAL_VISUALODOM_ENABLED 0` in
 `hwdef/include/SimOnHW.inc`); our build turns both back on.
 Link: KV260 UART to Nucleo UART7 (SERIAL3) at 921600; USB CN13 (SERIAL0) from the PC.
-Vision input is a **truth echo**: the KV260 reads the simulated pose (`SIMSTATE`), adds known
+Vision input is a **truth echo**: the KV260 reads the simulated pose (`SIM_STATE`), adds known
 noise and delay, and sends it back as vision. That tests transport, `TIMESYNC` over real serial,
 and EKF delay handling on a real MCU, with the error known exactly.
 Check: B1 tests pass with a serial connection; EKF fuses the echo; the recovered delay matches the

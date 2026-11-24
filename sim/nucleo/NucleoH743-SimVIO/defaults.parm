@@ -8,3 +8,11 @@ SERIAL3_PROTOCOL 2
 SERIAL3_BAUD 921
 # visual odometry backend: MAVLink
 VISO_TYPE 1
+# EKF3 source set 2 = external nav (vision position, velocity and yaw; baro height). EKF3 creates
+# its external-nav buffers at boot only if some source set uses external nav, so switching set 1
+# to external nav at runtime without this fuses nothing (docs/errors.md E23). Set 1 stays GPS;
+# switch sets with MAV_CMD_SET_EKF_SOURCE_SET or by setting EK3_SRC1_* at runtime.
+EK3_SRC2_POSXY 6
+EK3_SRC2_VELXY 6
+EK3_SRC2_POSZ 1
+EK3_SRC2_YAW 6

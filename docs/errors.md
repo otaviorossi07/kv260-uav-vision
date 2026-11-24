@@ -84,12 +84,43 @@ Entry format: symptom (what you see), cause, fix, where it is documented, status
   and `VISO_TYPE` take effect only after a reboot, which wipes them.
 - Fix: compiled-in `sim/nucleo/NucleoH743-SimVIO/defaults.parm`.
 
-### E15. Nucleo ATTITUDE 32-40 Hz instead of the requested 50 Hz - 2026-11-23 - open
-- Passes the test (>= 10 Hz) but below SITL's 50 Hz. Not investigated yet (CPU load of the
-  on-board simulation or USB scheduling). Check before Phase 6 latency work.
+### E15. Nucleo ATTITUDE 32-40 Hz instead of the requested 50 Hz - 2026-11-23 - fixed
+- Symptom: acceptance test reports 32-40 Hz on the Nucleo over USB (Windows); SITL gives 50.
+- Cause: not the board. It sends exactly every 20 ms (50.5 Hz received, CPU load 15.7 %).
+  pymavlink cannot `select()` on a Windows serial port, so `recv_match(timeout=0.05)` sleeps the
+  whole 50 ms when no byte is waiting; messages were then handled in bursts (25 % arrived < 3 ms
+  after the previous one) and the test, which sampled `link.attitude()` every 5 ms, missed them.
+  The bursts also added up to tens of ms of receive latency and inflated TIMESYNC rtt (~7 ms).
+- Fix: `fc_link` polls every 2 ms when the link has no file descriptor (Windows serial; Linux
+  keeps the 50 ms `select`, which wakes on data); new `FcLink.rx_count()`; the test counts
+  messages instead of sampling. Now 50.5 Hz, arrivals 19.8 ms apart, rtt 2-4 ms.
+  `results/b4_nucleo/SUMMARY.md`, `tools/bench/fc_rx_timing.py`.
 
 ### E16. Build script path wrong when run from a copy - 2026-11-21 - fixed
 - `build_nucleo_sim.sh` locates the board files relative to itself; run it in place.
+
+### E23. EKF3 ignores vision after switching to external nav at runtime - 2026-11-23 - fixed
+- Symptom: truth echo sends ODOMETRY at 30 Hz, `EK3_SRC1_POSXY/VELXY/YAW` set to 6; the FC says
+  "EKF3 lane switch", then ~14 s later "EKF3 IMU0 stopped aiding" and LOCAL_POSITION_NED stops.
+- Cause: EKF3 allocates its external-nav buffers at boot only if some source set uses external
+  nav (`AP_NavEKF_Source::ext_nav_enabled()`, `NavEKF3_core::setup_core`). At boot all sets were
+  GPS/none, so the vision data had nowhere to go.
+- Fix: compiled-in `EK3_SRC2_POSXY/VELXY/YAW 6`, `EK3_SRC2_POSZ 1` in `defaults.parm` (set 1
+  stays GPS). `truth_echo.py` refuses to run if no source set 2/3 uses external nav.
+  Applies to the Cube Orange too: configure a vision source set before boot.
+
+### E24. Nucleo build: `Could not find the program ['arm-none-eabi-ar']` - 2026-11-23 - workaround
+- Cause: the ARM toolchain is on the PATH only in a login shell; `wsl bash -c` is not one.
+- Fix: run the build with `wsl -d Ubuntu-22.04 bash -lc "..."`.
+
+### E25. One truth-echo run exited with code 1, cause not captured - 2026-11-23 - open
+- The third recorded run failed right after the previous one finished; its output had been sent
+  to /dev/null. The identical rerun passed. Suspect: COM6 still held by the previous process
+  (Windows serial ports are exclusive). Lesson: never discard stderr of bench runs.
+
+### E26. Truth echo: no GPS baseline right after a reboot - 2026-11-23 - fixed
+- Cause (in the tool): it started once the EKF origin existed, but the EKF publishes a position
+  only some seconds later. Fix: wait for LOCAL_POSITION_NED (up to 120 s) before starting.
 
 ## Visual odometry (B2)
 
