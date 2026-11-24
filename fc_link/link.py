@@ -17,7 +17,7 @@ import collections
 import threading
 import time
 from dataclasses import dataclass
-from typing import Callable, Deque, Optional, Tuple
+from typing import Callable, Deque, Dict, Optional, Tuple
 
 from pymavlink import mavutil
 
@@ -111,6 +111,7 @@ class FcLink:
         self._attitude: Optional[Attitude] = None
         self._local_pos: Optional[LocalPositionNed] = None
         self._last_fc_heartbeat_ns: Optional[int] = None
+        self._rx_counts: Dict[str, int] = {}  # messages received from the target, by type
         self.timesync = TimeSync()
         self.firmware: Optional[str] = None  # "px4" | "ardupilot"
         self.target_system: Optional[int] = None
@@ -199,6 +200,11 @@ class FcLink:
         with self._lock:
             return self._local_pos
 
+    def rx_count(self, mtype: str) -> int:
+        """Number of `mtype` messages received from the FC so far (exact rate measurement)."""
+        with self._lock:
+            return self._rx_counts.get(mtype, 0)
+
     def fc_alive(self, max_age_s: float = 3.0) -> bool:
         with self._lock:
             last = self._last_fc_heartbeat_ns
@@ -213,6 +219,10 @@ class FcLink:
     def _run(self) -> None:
         next_hb = 0.0
         next_ts = 0.0
+        # pymavlink waits with select() when the link has a file descriptor (Linux serial, UDP),
+        # which wakes as soon as data arrives. A Windows serial port has none, and pymavlink then
+        # sleeps the whole timeout: 50 ms bunched messages into bursts (docs/errors.md E15).
+        poll_s = 0.05 if getattr(self._mav, "fd", None) is not None else 0.002
         while not self._stop.is_set():
             now = time.monotonic()
             if now >= next_hb:
@@ -222,7 +232,7 @@ class FcLink:
                 # TIMESYNC request: tc1 = 0, ts1 = our time
                 self._mav.mav.timesync_send(0, self._clock())
                 next_ts = now + 1.0
-            msg = self._mav.recv_match(blocking=True, timeout=0.05)
+            msg = self._mav.recv_match(blocking=True, timeout=poll_s)
             if msg is not None:
                 self._handle(msg)
 
@@ -247,6 +257,8 @@ class FcLink:
         if mtype == "BAD_DATA" or not self._from_target(msg):
             return
         now = self._clock()
+        with self._lock:
+            self._rx_counts[mtype] = self._rx_counts.get(mtype, 0) + 1
         if mtype == "ATTITUDE":
             att = Attitude(
                 msg.time_boot_ms, msg.roll, msg.pitch, msg.yaw,

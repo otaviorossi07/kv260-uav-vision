@@ -27,12 +27,28 @@ Setup and commands in `sim/SITL.md`. Needs a WSL **Ubuntu-22.04** distro: the ex
 distro is 26.04, which the ArduPilot and PX4 setup scripts don't support.
 Check: `pytest -m sitl -k ardupilot` and `-k px4` pass.
 
-## B2 - VO on recorded data (no hardware)
+## B2 - VO on recorded data (no hardware) - PC part done 2026-11-21, KV260 timing open
+Results and findings: `results/b2_vo_euroc/SUMMARY.md`.
 Run the visual-odometry front end (sparse optical flow, OpenCV) on EuRoC MAV sequences, which give
 camera + IMU + ground truth. First on the PC for correctness, then on the KV260 A53 for timing.
 Datasets are downloaded to `data/` (not committed).
 Check: trajectory error (ATE RMSE, drift as % of path length) and fps per sequence, from a
 `tools/bench/` script, in `results/`.
+
+Run: `python tools/bench/vo_euroc.py data/euroc/V1_01_easy` -> `results/b2_vo_euroc/`.
+Code: `ingest/euroc.py` (reader), `perception/vo/` (tracker, keyframe mono VO, geometry).
+Dataset: ETH Research Collection, doi 10.3929/ethz-b-000690084 (per-room zips, non-commercial
+use); the original robotics.ethz.ch links are dead.
+Monocular VO has no metric scale, so the tool scores what the camera measures (rotation,
+direction of travel, rotation vs integrated gyro) and a "scale-oracle" trajectory that takes
+step lengths from ground truth. Metric scale comes from the IMU / height in B3 and later.
+OpenCV notes (found while testing, both affect the board's OpenCV 4.5):
+- `findEssentialMat(..., RANSAC)` is not refined; `USAC_DEFAULT` is ~10x better on OpenCV 5.x
+  but much weaker on 4.5. A Sampson-error LM refinement on the inliers (`refine=True`) brings
+  4.5 close to 5.x (synthetic, 0.3 px noise: rotation 0.13 deg / direction 2.3 deg median).
+- `recoverPose` short form drops points beyond 50 baselines (6 m at 12 cm) in its cheirality
+  check; use the `distanceThresh` overload, and pass it by keyword (positionally the Python
+  binding silently picks the short form).
 
 ## B3 - closed-loop VIO in SITL
 Simulink owns the truth: UAV dynamics feed ArduPilot SITL over the JSON interface, and the
@@ -45,12 +61,23 @@ Check: EKF accepts vision for a scripted trajectory; position error vs Simulink 
 p95, final drift) and the measured delay (Phase 6) behind `VISO_DELAY_MS`, in `results/`.
 Arming in SITL only; any code that arms must refuse real hardware without `--allow-flight`.
 
-## B4 - Nucleo, simulation on the board, real UART
+## B4 - Nucleo, simulation on the board, real UART - USB link + stationary truth echo pass 2026-11-23; UART7 and delay check open
+Board definition, build script and flashing notes: `sim/nucleo/`. Results: `results/b4_nucleo/SUMMARY.md`.
+Step 1 done (2026-11-23): flashed on the ZI2, Phase 2 acceptance passes over USB CN13 (3/3,
+ATTITUDE 50.5 Hz, TIMESYNC rtt 3.5-4 ms after fixing E15),
+`results/b4_nucleo/step1_usb_acceptance.txt`.
+Step 2, stationary truth echo over USB, done (2026-11-23): `tools/bench/truth_echo.py`; EKF3 fuses
+the echo (7 mm median error with 20 mm noise), step response t63 ~1.5 s. Needed a vision
+source set at boot (E23).
+Open: the same over UART7 from the KV260; the delay check, which needs the simulated vehicle to
+move, i.e. arming it (asks first: `--allow-flight` path, even though the Nucleo drives no motors).
+Needed: simulated GPS (`GPS_TYPE 100`) with a placeholder GPS port, and compiled-in defaults
+because the board stores no parameters (details in `sim/nucleo/README.md`).
 ArduPilot `NucleoH743` target (simulation runs on the H7, no sensors needed). Its default build
 turns off external navigation (`EK3_FEATURE_EXTERNAL_NAV 0`, `HAL_VISUALODOM_ENABLED 0` in
 `hwdef/include/SimOnHW.inc`); our build turns both back on.
-Link: KV260 UART to a Nucleo UART at 921600, or the ST-LINK USB serial (USART3) from the PC.
-Vision input is a **truth echo**: the KV260 reads the simulated pose (`SIMSTATE`), adds known
+Link: KV260 UART to Nucleo UART7 (SERIAL3) at 921600; USB CN13 (SERIAL0) from the PC.
+Vision input is a **truth echo**: the KV260 reads the simulated pose (`SIM_STATE`), adds known
 noise and delay, and sends it back as vision. That tests transport, `TIMESYNC` over real serial,
 and EKF delay handling on a real MCU, with the error known exactly.
 Check: B1 tests pass with a serial connection; EKF fuses the echo; the recovered delay matches the

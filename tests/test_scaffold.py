@@ -15,6 +15,7 @@ import pytest
         "perception",
         "perception.aruco",
         "perception.dpu",
+        "perception.vo",
     ],
 )
 def test_package_imports(module):

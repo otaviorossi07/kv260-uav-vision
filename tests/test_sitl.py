@@ -36,19 +36,18 @@ def run_acceptance(connection: str, expected_fw: str) -> None:
         # PX4 streams ATTITUDE only once EKF2 has aligned (~40-50 s after SIH start, measured);
         # ArduPilot sends it at once from DCM.
         assert wait_for(lambda: link.attitude() is not None, 90.0), "no ATTITUDE"
-        # count ATTITUDE updates over 2 s to check the requested rate is roughly honoured
-        seen = set()
-        end = time.monotonic() + 2.0
-        while time.monotonic() < end:
-            seen.add(link.attitude().time_boot_ms)
-            time.sleep(0.005)
-        assert len(seen) >= 20, f"ATTITUDE rate too low: {len(seen) / 2:.0f} Hz"
+        # count ATTITUDE messages over 2 s to check the requested rate is roughly honoured
+        # (counted in the link: sampling link.attitude() misses messages that arrive together)
+        n0 = link.rx_count("ATTITUDE")
+        time.sleep(2.0)
+        rate_hz = (link.rx_count("ATTITUDE") - n0) / 2.0
+        assert rate_hz >= 10, f"ATTITUDE rate too low: {rate_hz:.0f} Hz"
         assert wait_for(lambda: link.timesync.offset_ns is not None, 10.0), "no TIMESYNC reply"
         # EKF needs an origin before LOCAL_POSITION_NED appears
         assert wait_for(lambda: link.local_position() is not None, 120.0), "no LOCAL_POSITION_NED"
         assert link.fc_alive()
         print(
-            f"\n{expected_fw}: ATTITUDE ~{len(seen) / 2:.0f} Hz, "
+            f"\n{expected_fw}: ATTITUDE {rate_hz:.1f} Hz, "
             f"timesync rtt {link.timesync.rtt_ns / 1e6:.2f} ms"
         )
     finally:

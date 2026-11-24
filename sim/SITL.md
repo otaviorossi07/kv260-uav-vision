@@ -58,6 +58,23 @@ make px4_sitl sihsim_quadx
 ```
 If that target fails to build, fall back to Gazebo headless: `HEADLESS=1 make px4_sitl gz_x500`.
 
+**Intermittent build failure: `ninja: error: manifest 'build.ninja' still dirty after 100 tries`**
+(inside `uxrce_dds_client/.../libmicroxrceddsclient_project-build`, about 1 in 3 fresh builds on
+this PC, investigated 2026-11-23). Cause: the WSL clock steps back and forth by the Windows clock
+error. Hyper-V pushes the Windows time into WSL every few seconds, `systemd-timesyncd` pulls it
+back to internet time; with the Windows clock 17.7 s fast (never synchronized, source "Local CMOS
+Clock") the WSL clock jumped -17.7 s / +17.7 s about every 5 s (measured: realtime minus monotonic
+clock). A backward step during the nested Micro-XRCE-DDS-Client configure leaves
+`CMakeFiles/3.22.1/CMakeSystem.cmake` dated in the future, so every regenerated `build.ninja`
+looks older than it and ninja gives up. The `CMAKE_BUILD_PARALLEL_LEVEL` setting makes no
+difference (2/6 failures with and without). Fixes:
+- Real fix: synchronize the Windows clock (Settings > Time & language > Date & time > "Set time
+  automatically" + "Sync now"; check with `w32tm /stripchart /computer:time.windows.com /samples:3`).
+- Workaround: run `make px4_sitl_default` again; the outer build reconfigures the nested project
+  and completes (verified).
+Our measurements use monotonic clocks (`fc_link` TIMESYNC, `perf_counter` in the VO bench), so
+results are not affected; anything that compares wall-clock times across Windows and WSL is.
+
 ## 3. Python env for the tests (once)
 
 ```

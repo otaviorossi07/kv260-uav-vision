@@ -1,0 +1,23 @@
+# Bench stage B4: NUCLEO-H743ZI2 running ArduPilot with the simulation on the board (no sensors),
+# plus external navigation / visual odometry turned back on so EKF3 can fuse vision messages
+# (VISION_POSITION_ESTIMATE / ODOMETRY) sent by the KV260.
+# Base: ArduPilot NucleoH743 (includes SimOnHW.inc, which disables both features).
+# Serial:
+#   SERIAL0 = USB OTG (CN13), MAVLink to the PC.
+#   SERIAL1 = USART3 (PD8 TX, PD9 RX, wired to the ST-LINK virtual COM port). Only a placeholder
+#             with the GPS protocol: the simulated GPS (GPS_TYPE 100) needs a GPS port to exist,
+#             but reads and writes nothing on it.
+#   SERIAL3 = UART7 (PE8 TX, PF6 RX), MAVLink to the KV260.
+# Parameters are not stored (HAL_USE_EMPTY_STORAGE in the base board). Anything that needs a
+# reboot to take effect is therefore compiled in via defaults.parm next to this file (ROMFS).
+
+include ../NucleoH743/hwdef.dat
+
+undef SERIAL_ORDER
+SERIAL_ORDER OTG1 USART3 EMPTY UART7
+PD8 USART3_TX USART3 NODMA
+PD9 USART3_RX USART3 NODMA
+
+undef EK3_FEATURE_EXTERNAL_NAV HAL_VISUALODOM_ENABLED
+define EK3_FEATURE_EXTERNAL_NAV 1
+define HAL_VISUALODOM_ENABLED 1

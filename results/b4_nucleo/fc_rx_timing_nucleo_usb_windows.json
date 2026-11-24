@@ -1,0 +1,31 @@
+{
+  "tool": "tools/bench/fc_rx_timing.py",
+  "tag": "nucleo_usb_windows",
+  "firmware": "ardupilot",
+  "date": "2026-11-23T22:22:24",
+  "connection": "COM6",
+  "seconds": 20.0,
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "rate_hz": {
+    "ATTITUDE": 50.5,
+    "LOCAL_POSITION_NED": 50.5,
+    "HEARTBEAT": 1.0
+  },
+  "attitude_fc_spacing_ms": {
+    "n": 1009,
+    "median": 20.0,
+    "p95": 21.0,
+    "max": 22.0
+  },
+  "attitude_arrival_spacing_ms": {
+    "n": 1009,
+    "median": 19.812399998045294,
+    "p95": 21.458159999747295,
+    "max": 23.588599997310666
+  },
+  "attitude_arrivals_under_3ms_pct": 0.0,
+  "timesync_rtt_ms_min_of_window": 1.9723
+}

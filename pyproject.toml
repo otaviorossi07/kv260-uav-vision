@@ -10,10 +10,14 @@ readme = "README.md"
 license = { text = "MIT" }
 # 3.8 = Vitis AI 3.5 host container; 3.10 = Ubuntu 22.04 on the KV260. Code must run on both.
 requires-python = ">=3.8"
-dependencies = ["pymavlink>=2.4.40"]
+# pyserial: pymavlink does not pull it in, but serial links (UART, USB) need it
+dependencies = ["pymavlink>=2.4.40", "pyserial>=3.4"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
+# Vision (VO, ingest). On the KV260 the apt packages python3-opencv / python3-numpy (OpenCV 4.5)
+# also work; the Vitis AI container ships its own cv2. Code uses only OpenCV 4.5 APIs.
+vision = ["numpy>=1.17", "opencv-python-headless>=4.5"]
 
 [tool.setuptools.packages.find]
 include = ["fc_link*", "ingest*", "perception*"]
